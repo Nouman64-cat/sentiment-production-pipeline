@@ -1,5 +1,5 @@
 # 1. Base Image
-FROM python:3.10-slim
+FROM python:3.13-slim
 
 # 2. Set working directory
 WORKDIR /app
@@ -15,10 +15,16 @@ RUN uv sync --frozen --no-install-project
 # 5. Copy the Source Code
 COPY src/ src/
 
-# 6. PIPELINE EXECUTION
+# 6. Install the project (so 'src' becomes an importable package)
+RUN uv sync --frozen
+
+# Set PYTHONPATH to ensure src module is found
+ENV PYTHONPATH="/app"
+
+# 7. PIPELINE EXECUTION
 
 # Step A: Download Data
-RUN uv run python src/data/make_dataset.py
+RUN uv run python src/scripts/download_dataset.py
 
 # Step B: Train Classical ML Model
 RUN uv run python src/models/train_ml.py
@@ -26,9 +32,9 @@ RUN uv run python src/models/train_ml.py
 # Step C: Train Deep Learning Model
 RUN uv run python src/models/train_dl.py
 
-# 7. Setup Environment
+# 8. Setup Environment
 ENV PATH="/app/.venv/bin:$PATH"
 
-# 8. Expose & Run
+# 9. Expose & Run
 EXPOSE 8000
-CMD ["uvicorn", "src.api.app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -25,21 +25,38 @@ docker run -p 8000:8000 sentiment-api
 
 If you wish to modify code or run locally.
 
+#### Step 1: Install uv (Recommended) or use pip
+
+**using pipx (any platform):**
+
+```bash
+pipx install uv
+```
+
+**Or using pip with virtual environment:**
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install uv
+```
+
+#### Step 2: Setup Environment
+
 | Step            | Option A: uv (Recommended) | Option B: pip (Standard)                                                      |
 | :-------------- | :------------------------- | :---------------------------------------------------------------------------- |
-| **1. Install**  | `pip install uv`           | (Pre-installed)                                                               |
-| **2. Init**     | `uv sync`                  | `python -m venv .venv`                                                        |
-| **3. Activate** | _(Handled by `uv run`)_    | `source .venv/bin/activate` (Mac/Linux)<br>`.venv\Scripts\activate` (Windows) |
-| **4. Deps**     | **Done!**                  | `pip install -r requirements.txt`                                             |
+| **1. Init**     | `uv sync`                  | `python -m venv .venv`                                                        |
+| **2. Activate** | _(Handled by `uv run`)_    | `source .venv/bin/activate` (Mac/Linux)<br>`.venv\Scripts\activate` (Windows) |
+| **3. Deps**     | **Done!**                  | `pip install -r requirements.txt`                                             |
 
 #### Manual Training (Only for Option 2)
 
 If running locally, you must execute the pipeline steps manually:
 
 ```bash
-# Using uv (or python if using pip)
-uv run python src/data/make_dataset.py
-uv run python src/models/train_ml.py
-uv run python src/models/train_dl.py
-uv run uvicorn src.api.main:app --reload
+# Using uv (set PYTHONPATH so 'src' module is found)
+PYTHONPATH=. uv run python src/scripts/download_dataset.py
+PYTHONPATH=. uv run python src/models/train_ml.py
+PYTHONPATH=. uv run python src/models/train_dl.py
+PYTHONPATH=. uv run uvicorn src.api.main:app --reload
 ```
