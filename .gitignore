@@ -3,3 +3,13 @@
 __pycache__
 
 *.lock
+
+*.csv
+
+*.db
+
+mlruns
+
+*.joblib
+
+*.pth
