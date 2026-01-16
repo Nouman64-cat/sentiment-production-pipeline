@@ -59,4 +59,7 @@ PYTHONPATH=. uv run python src/scripts/download_dataset.py
 PYTHONPATH=. uv run python src/models/train_ml.py
 PYTHONPATH=. uv run python src/models/train_dl.py
 PYTHONPATH=. uv run uvicorn src.api.main:app --reload
+
+# For Mlflow tracking
+uv run mlflow ui
 ```
