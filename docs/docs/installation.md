@@ -77,7 +77,7 @@ pip install mlflow
 mlflow ui --backend-store-uri ./mlruns
 ```
 
-Then visit http://localhost:5000
+Then visit http://localhost:5001
 
 ---
 

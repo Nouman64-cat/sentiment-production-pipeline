@@ -20,7 +20,11 @@ RUN uv sync --frozen
 # Set PYTHONPATH to ensure src module is found
 ENV PYTHONPATH="/app"
 
-# 7. PIPELINE EXECUTION
+# 7. Create mlflow data directory and set tracking URI
+RUN mkdir -p /app/mlflow_data
+ENV MLFLOW_TRACKING_URI="sqlite:////app/mlflow_data/mlflow.db"
+
+# 8. PIPELINE EXECUTION
 
 # Step A: Download Data
 RUN uv run python src/scripts/download_dataset.py
@@ -31,18 +35,15 @@ RUN uv run python src/models/train_ml.py
 # Step C: Train Deep Learning Model
 RUN uv run python src/models/train_dl.py
 
-# 8. Save mlruns to a build directory (will be copied to volume at runtime)
-RUN mv mlruns mlruns_build
+# 9. Save mlflow data to build directory (will be copied to volume at runtime)
+RUN cp -r /app/mlflow_data /app/mlflow_data_build
 
-# 9. Setup Environment
+# 10. Setup Environment
 ENV PATH="/app/.venv/bin:$PATH"
 
-# 10. Copy and setup entrypoint script
+# 11. Copy and setup entrypoint script
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
-
-# 11. Create mlruns directory for volume mount
-RUN mkdir -p /app/mlruns
 
 # 12. Expose & Run
 EXPOSE 8000

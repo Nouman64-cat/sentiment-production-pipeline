@@ -1,12 +1,12 @@
-version: "3.8"
-
 services:
   api:
     build: .
     ports:
       - "8000:8000"
     volumes:
-      - mlruns_data:/app/mlruns
+      - mlflow_data:/app/mlflow_data
+    environment:
+      - MLFLOW_TRACKING_URI=sqlite:////app/mlflow_data/mlflow.db
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -18,11 +18,11 @@ services:
     ports:
       - "5001:5000"
     volumes:
-      - mlruns_data:/mlruns
+      - mlflow_data:/mlflow_data
     command: >
-      sh -c "echo 'Waiting for API to initialize...' && sleep 5 && pip install mlflow && mlflow ui --host 0.0.0.0 --backend-store-uri /mlruns"
+      sh -c "pip install mlflow && mlflow ui --host 0.0.0.0 --backend-store-uri sqlite:////mlflow_data/mlflow.db"
     depends_on:
       - api
 
 volumes:
-  mlruns_data:
+  mlflow_data:
