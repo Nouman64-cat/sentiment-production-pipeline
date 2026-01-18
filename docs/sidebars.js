@@ -28,7 +28,7 @@ const sidebars = {
     {
       type: "category",
       label: "Models",
-      items: ["model-choices", "results"],
+      items: ["model-choices", "results", "evaluation"],
     },
     {
       type: "category",
