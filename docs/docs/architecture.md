@@ -10,36 +10,32 @@ Understanding the folder structure and design decisions behind the Sentiment Ana
 
 ```
 sentiment-production-pipeline/
-├── dataset/                    # Training data
-│   └── data.csv               # Curated sentiment dataset
-│
-├── docs/                       # Docusaurus documentation (you are here)
-│
-├── models/                     # Trained model artifacts
-│   ├── ml_model.joblib        # Serialized scikit-learn pipeline
-│   └── dl_model.pth           # PyTorch model weights
-│
-├── mlruns/                     # MLflow experiment tracking data
-│
-├── notebooks/                  # Jupyter notebooks for analysis
-│   └── analysis.ipynb         # Model comparison notebook
-│
-├── src/                        # Main source code
+├── src/                        # Main source code (modular design)
 │   ├── __init__.py
 │   │
-│   ├── api/                   # FastAPI application
+│   ├── data/                  # Dataset storage
 │   │   ├── __init__.py
-│   │   ├── main.py           # API routes and startup
-│   │   └── database.py       # SQLite logging utilities
+│   │   └── data.csv          # Curated sentiment dataset
+│   │
+│   ├── preprocessing/         # Text preprocessing
+│   │   ├── __init__.py
+│   │   └── clean.py          # Text cleaning functions
 │   │
 │   ├── models/                # Model training scripts
 │   │   ├── __init__.py
 │   │   ├── train_ml.py       # Classical ML training
 │   │   └── train_dl.py       # Deep Learning training
 │   │
-│   ├── preprocessing/         # Text preprocessing
+│   ├── evaluation/            # Model evaluation utilities
+│   │   └── __init__.py
+│   │
+│   ├── api/                   # FastAPI application
 │   │   ├── __init__.py
-│   │   └── clean.py          # Text cleaning functions
+│   │   ├── main.py           # API routes and startup
+│   │   └── database.py       # SQLite logging utilities
+│   │
+│   ├── config/                # Configuration management
+│   │   └── __init__.py
 │   │
 │   └── scripts/               # Utility scripts
 │       └── download_dataset.py
@@ -47,7 +43,17 @@ sentiment-production-pipeline/
 ├── tests/                      # Test suite
 │   └── test_preprocessing.py  # Preprocessing unit tests
 │
+├── notebooks/                  # Jupyter notebooks for analysis
+│   └── analysis.ipynb         # Model comparison notebook
+│
+├── models/                     # Trained model artifacts
+│   ├── ml_model.joblib        # Serialized scikit-learn pipeline
+│   └── dl_model.pth           # PyTorch model weights
+│
+├── docs/                       # Docusaurus documentation
+│
 ├── Dockerfile                  # Container definition
+├── docker-compose.yml         # Multi-service orchestration
 ├── pyproject.toml             # Project metadata
 ├── requirements.txt           # Python dependencies
 └── README.md                  # Project overview
@@ -57,14 +63,17 @@ sentiment-production-pipeline/
 
 ### Modular Design
 
-The project follows a modular architecture where each component has a single responsibility:
+The project follows a strict modular architecture where each component has a single responsibility:
 
-| Module               | Responsibility                  |
-| -------------------- | ------------------------------- |
-| `src/preprocessing/` | Text cleaning and normalization |
-| `src/models/`        | Model training and evaluation   |
-| `src/api/`           | REST API and request handling   |
-| `src/scripts/`       | Data preparation utilities      |
+| Module               | Responsibility                        |
+| -------------------- | ------------------------------------- |
+| `src/data/`          | Dataset storage and management        |
+| `src/preprocessing/` | Text cleaning and normalization       |
+| `src/models/`        | Model training and inference          |
+| `src/evaluation/`    | Model evaluation and metrics          |
+| `src/api/`           | REST API and request handling         |
+| `src/config/`        | Configuration and hyperparameters     |
+| `src/scripts/`       | Utility scripts (data download, etc.) |
 
 ### Why This Structure?
 

@@ -2,7 +2,7 @@ import os
 import requests
 
 DATA_URL = "https://ai-ml-dl---datasets.s3.us-east-1.amazonaws.com/test-task-dataset/data.csv"
-OUTPUT_DIR = "dataset"
+OUTPUT_DIR = os.path.join("src", "data")
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "data.csv")
 
 def main():

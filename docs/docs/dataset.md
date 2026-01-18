@@ -13,7 +13,7 @@ This document explains how the training dataset was curated and structured for t
 | **Format**   | CSV with headers                    |
 | **Columns**  | `text`, `sentiment`                 |
 | **Labels**   | Binary (0 = negative, 1 = positive) |
-| **Location** | `dataset/data.csv`                  |
+| **Location** | `src/data/data.csv`                 |
 
 ## Data Curation Philosophy
 
@@ -130,7 +130,7 @@ To expand the dataset:
 import pandas as pd
 
 # Load existing data
-df = pd.read_csv('dataset/data.csv')
+df = pd.read_csv('src/data/data.csv')
 
 # Add new samples
 new_data = pd.DataFrame({
@@ -140,7 +140,7 @@ new_data = pd.DataFrame({
 
 # Combine and save
 df = pd.concat([df, new_data], ignore_index=True)
-df.to_csv('dataset/data.csv', index=False)
+df.to_csv('src/data/data.csv', index=False)
 ```
 
 ## Versioning
@@ -149,11 +149,11 @@ For production environments, implement data versioning:
 
 ```bash
 # Tag dataset versions
-cp dataset/data.csv dataset/data_v1.0.csv
+cp src/data/data.csv src/data/data_v1.0.csv
 
 # Update after curation
-# dataset/data.csv (latest)
-# dataset/data_v1.0.csv (archived)
+# src/data/data.csv (latest)
+# src/data/data_v1.0.csv (archived)
 ```
 
 Consider using DVC (Data Version Control) for larger datasets.

@@ -39,13 +39,16 @@ The project follows a strict modular design pattern to ensure reproducibility an
 
 ```text
 ├── src/
-│   ├── api/            # FastAPI application & SQLite logging
-│   ├── models/         # Training logic (ML & DL)
+│   ├── data/           # Dataset storage
 │   ├── preprocessing/  # Text cleaning pipeline
-│   └── scripts/        # Utilities
-├── notebooks/          # EDA and Model Comparison (Jupyter)
+│   ├── models/         # Training logic (ML & DL)
+│   ├── evaluation/     # Model evaluation utilities
+│   ├── api/            # FastAPI application & SQLite logging
+│   ├── config/         # Configuration management
+│   └── scripts/        # Utilities (data download)
 ├── tests/              # Unit tests for data pipeline
+├── notebooks/          # EDA and Model Comparison (Jupyter)
 ├── Dockerfile          # Multi-stage build for production
-docker-compose.yml      # Multi-service setup (API + MLflow)
+├── docker-compose.yml  # Multi-service setup (API + MLflow)
 └── pyproject.toml      # Dependency management (uv)
 ```

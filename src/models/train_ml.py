@@ -11,7 +11,7 @@ from sklearn.metrics import classification_report, accuracy_score, f1_score
 from src.preprocessing.clean import clean_text
 
 # Paths
-DATA_PATH = os.path.join("dataset", "data.csv")
+DATA_PATH = os.path.join("src", "data", "data.csv")
 MODEL_PATH = os.path.join("models", "ml_model.joblib")
 
 def train():

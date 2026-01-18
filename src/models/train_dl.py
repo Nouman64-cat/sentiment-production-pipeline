@@ -11,7 +11,7 @@ from sklearn.metrics import accuracy_score, f1_score
 from src.preprocessing.clean import clean_text
 
 # --- CONFIGURATION ---
-DATA_PATH = os.path.join("dataset", "data.csv")
+DATA_PATH = os.path.join("src", "data", "data.csv")
 MODEL_SAVE_PATH = os.path.join("models", "dl_model.pth")
 EPOCHS = 3          
 BATCH_SIZE = 8      
