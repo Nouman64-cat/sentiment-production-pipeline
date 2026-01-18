@@ -21,7 +21,11 @@ You can evaluate trained models independently using the `src/scripts/evaluate.py
 ### 1. Evaluate Classical ML Model
 
 ```bash
+# Recommend module execution (cleaner path handling)
 uv run python -m src.scripts.evaluate --model ml
+
+# Alternative: Run script directly
+uv run python src/scripts/evaluate.py --model ml
 ```
 
 **Output:**
@@ -32,7 +36,11 @@ uv run python -m src.scripts.evaluate --model ml
 ### 2. Evaluate Deep Learning Model
 
 ```bash
+# Recommend module execution
 uv run python -m src.scripts.evaluate --model dl
+
+# Alternative: Run script directly
+uv run python src/scripts/evaluate.py --model dl
 ```
 
 **Output:**
