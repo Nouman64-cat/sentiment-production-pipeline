@@ -1,4 +1,10 @@
 import os
+import sys
+
+# Ensure project root is in path when running directly
+if __name__ == "__main__":
+    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+
 import argparse
 import yaml
 import joblib
