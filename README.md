@@ -46,5 +46,6 @@ The project follows a strict modular design pattern to ensure reproducibility an
 ├── notebooks/          # EDA and Model Comparison (Jupyter)
 ├── tests/              # Unit tests for data pipeline
 ├── Dockerfile          # Multi-stage build for production
+docker-compose.yml      # Multi-service setup (API + MLflow)
 └── pyproject.toml      # Dependency management (uv)
 ```
