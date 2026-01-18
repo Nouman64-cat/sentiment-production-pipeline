@@ -106,7 +106,7 @@ def train():
     model = model.to(device)
 
     # Optimizer & Scheduler
-    optimizer = AdamW(model.parameters(), lr=config["training"]["learning_rate"]) 
+    optimizer = AdamW(model.parameters(), lr=float(config["training"]["learning_rate"])) 
     
     total_steps = len(train_loader) * epochs
     scheduler = get_linear_schedule_with_warmup(
