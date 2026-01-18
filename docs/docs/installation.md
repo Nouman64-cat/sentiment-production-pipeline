@@ -40,7 +40,7 @@ docker compose up --build
 | Service       | URL                   |
 | ------------- | --------------------- |
 | **API**       | http://localhost:8000 |
-| **MLflow UI** | http://localhost:5000 |
+| **MLflow UI** | http://localhost:5001 |
 
 :::tip Why Docker Compose?
 Docker Compose is the recommended approach because it gives you instant access to MLflow experiment tracking without any additional setup.
