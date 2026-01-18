@@ -48,6 +48,9 @@ sentiment-production-pipeline/
 │   └── test_preprocessing.py  # Preprocessing unit tests
 │
 ├── notebooks/                  # Jupyter notebooks for analysis
+│   ├── EDA_IMDB.ipynb         # Exploratory analysis of IMDB dataset
+│   ├── EDA_Tweets.ipynb       # Exploratory analysis of Tweets dataset
+│   ├── Merge_IMDB_Tweets.ipynb # Dataset merging logic
 │   └── analysis.ipynb         # Model comparison notebook
 │
 ├── models/                     # Trained model artifacts
@@ -88,25 +91,7 @@ The project follows a strict modular architecture where each component has a sin
 
 ## Data Flow
 
-```
-┌──────────────┐    ┌─────────────────┐    ┌───────────────┐
-│  Raw Text    │───▶│  Preprocessing  │───▶│  Clean Text   │
-└──────────────┘    │  (clean.py)     │    └───────────────┘
-                    └─────────────────┘            │
-                                                   ▼
-                    ┌─────────────────┐    ┌───────────────┐
-                    │   Model A (ML)  │◀───│  API Request  │
-                    │   TF-IDF + LR   │    └───────────────┘
-                    └─────────────────┘            │
-                           │                       ▼
-                           ▼              ┌───────────────┐
-                    ┌─────────────────┐   │  Model B (DL) │
-                    │   Prediction    │   │  DistilBERT   │
-                    │   Response      │   └───────────────┘
-                    └─────────────────┘            │
-                           ▲                       │
-                           └───────────────────────┘
-```
+![Project Architecture Diagram](https://ai-ml-dl---datasets.s3.us-east-1.amazonaws.com/cdn/project-images/Screenshot+2026-01-18+at+11.03.25%E2%80%AFPM.png)
 
 ## Key Components
 

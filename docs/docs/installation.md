@@ -12,7 +12,7 @@ Before you begin, ensure you have the following installed:
 
 - **Git** for cloning the repository
 - **Docker & Docker Compose** (recommended) OR
-- **Python 3.10+** with **pip** or **uv** (for local development)
+- **Python 3.13+** with **pip** or **uv** (for local development)
 
 ## Step 1: Clone the Repository
 

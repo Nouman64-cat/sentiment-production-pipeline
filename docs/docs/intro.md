@@ -18,21 +18,7 @@ This pipeline demonstrates a real-world ML system that includes:
 
 ## Quick Start
 
-```bash
-# Clone the repository
-git clone https://github.com/Nouman64-cat/sentiment-production-pipeline.git
-cd sentiment-production-pipeline
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Train models
-python -m src.models.train_ml
-python -m src.models.train_dl
-
-# Start the API
-uvicorn src.api.main:app --reload
-```
+For detailed setup instructions, please refer to the [Installation](./installation) page.
 
 ## Documentation Structure
 
