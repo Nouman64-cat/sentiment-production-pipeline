@@ -10,6 +10,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import accuracy_score, f1_score
 from src.preprocessing.clean import clean_text
+from src.evaluation.metrics import calculate_metrics, plot_confusion_matrix
 from src.config import ML_CONFIG_PATH
 
 # Load configuration from YAML
@@ -71,8 +72,11 @@ def train():
         
         # --- LOGGING ---
         y_pred = best_model.predict(X_test)
-        acc = accuracy_score(y_test, y_pred)
-        f1 = f1_score(y_test, y_pred)
+        
+        # Use shared metrics module
+        metrics = calculate_metrics(y_test, y_pred)
+        acc = metrics["accuracy"]
+        f1 = metrics["f1_score"]
         
         print(f"Best Params: {search.best_params_}")
         print(f"Accuracy: {acc:.4f}")
@@ -83,6 +87,10 @@ def train():
         mlflow.log_metric("accuracy", acc)
         mlflow.log_metric("f1_score", f1)
         mlflow.sklearn.log_model(best_model, "model")
+        
+        # Log Confusion Matrix
+        cm_fig = plot_confusion_matrix(y_test, y_pred, output_path=None)
+        mlflow.log_figure(cm_fig, "confusion_matrix.png")
         
         # Save locally
         model_path = config["paths"]["model"]

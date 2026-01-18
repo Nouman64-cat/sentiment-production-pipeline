@@ -27,7 +27,8 @@ sentiment-production-pipeline/
 │   │   └── train_dl.py       # Deep Learning training
 │   │
 │   ├── evaluation/            # Model evaluation utilities
-│   │   └── __init__.py
+│   │   ├── __init__.py
+│   │   └── metrics.py        # Shared metric calculations
 │   │
 │   ├── api/                   # FastAPI application
 │   │   ├── __init__.py
@@ -40,7 +41,8 @@ sentiment-production-pipeline/
 │   │   └── dl_config.yaml    # DL hyperparameters (editable)
 │   │
 │   └── scripts/               # Utility scripts
-│       └── download_dataset.py
+│       ├── download_dataset.py
+│       └── evaluate.py       # Model evaluation runner
 │
 ├── tests/                      # Test suite
 │   └── test_preprocessing.py  # Preprocessing unit tests
@@ -125,6 +127,13 @@ Contains training scripts with:
 - **MLflow integration** for experiment tracking
 - **Hyperparameter tuning** via GridSearchCV
 - **Model serialization** for production deployment
+
+### Evaluation Module (`src/evaluation/`)
+
+Centralizes metric calculations to ensure consistency across the pipeline:
+
+- **Unified Metrics**: Accuracy and F1 Score calculations reused by training scripts and evaluation reports.
+- **Visualizations**: Confusion matrix generation.
 
 ### API Module (`src/api/`)
 

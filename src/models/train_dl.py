@@ -9,6 +9,7 @@ from torch.optim import AdamW
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score
 from src.preprocessing.clean import clean_text
+from src.evaluation.metrics import calculate_metrics, plot_confusion_matrix
 from src.config import DL_CONFIG_PATH
 
 # Load configuration from YAML
@@ -183,8 +184,10 @@ def train():
                     val_preds.extend(preds.cpu().tolist())
                     val_labels.extend(labels.cpu().tolist())
 
-            val_acc = accuracy_score(val_labels, val_preds)
-            val_f1 = f1_score(val_labels, val_preds)
+            # Use shared metrics module
+            metrics = calculate_metrics(val_labels, val_preds)
+            val_acc = metrics["accuracy"]
+            val_f1 = metrics["f1_score"]
             print(f"Val Accuracy: {val_acc} | Val F1: {val_f1}")
 
             # Log Metrics
@@ -197,6 +200,10 @@ def train():
                 counter = 0 
                 torch.save(model.state_dict(), model_save_path)
                 print(f"Model improved! Saved to {model_save_path}")
+                
+                # Log Confusion Matrix for best model
+                cm_fig = plot_confusion_matrix(val_labels, val_preds, output_path=None)
+                mlflow.log_figure(cm_fig, "confusion_matrix.png")
             else:
                 counter += 1
                 print(f"No improvement for {counter} epochs.")
