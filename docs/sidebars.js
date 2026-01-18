@@ -23,7 +23,7 @@ const sidebars = {
     {
       type: "category",
       label: "Data & Preprocessing",
-      items: ["dataset", "preprocessing"],
+      items: ["data-curation", "dataset", "preprocessing"],
     },
     {
       type: "category",
