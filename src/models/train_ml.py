@@ -3,7 +3,7 @@ import joblib
 import os
 import mlflow
 import mlflow.sklearn
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
@@ -39,41 +39,55 @@ def train():
     
     # 5. Start Run
     with mlflow.start_run():
-        print("Training Model A (Classical ML)...")
+        print("Training Model A (Classical ML) with GridSearchCV...")
         
-        # Build Pipeline
+        # 1. Define the base pipeline (no hardcoded params yet)
         pipeline = Pipeline([
-            ('tfidf', TfidfVectorizer(max_features=MAX_FEATURES)),
+            ('tfidf', TfidfVectorizer()),
             ('clf', LogisticRegression())
         ])
 
-        # Train
-        pipeline.fit(X_train, y_train)
+        # 2. Define the parameter grid
+        # Note: Use 'stepname__parameter' syntax
+        param_grid = {
+            'tfidf__max_features': [3000, 5000],
+            'tfidf__ngram_range': [(1, 1), (1, 2)],  # Unigrams vs Bigrams
+            'clf__C': [0.1, 1.0, 10.0]               # Regularization strength
+        }
+
+        # 3. Setup GridSearchCV
+        # cv=3 is sufficient for a small dataset; n_jobs=-1 uses all cores
+        search = GridSearchCV(pipeline, param_grid, cv=3, scoring='accuracy', n_jobs=-1)
         
-        # Evaluate
-        y_pred = pipeline.predict(X_test)
+        # 4. Fit the Search
+        search.fit(X_train, y_train)
+        
+        # 5. Extract the best model
+        best_model = search.best_estimator_
+        
+        # --- LOGGING ---
+        # Evaluate using the best model
+        y_pred = best_model.predict(X_test)
         acc = accuracy_score(y_test, y_pred)
         f1 = f1_score(y_test, y_pred)
         
+        print(f"Best Params: {search.best_params_}")
         print(f"Accuracy: {acc:.4f}")
         print(f"F1 Score: {f1:.4f}")
 
-        # --- LOGGING TO MLFLOW ---
-        # Log Params
-        mlflow.log_param("model_type", "LogisticRegression")
-        mlflow.log_param("vectorizer", "TF-IDF")
-        mlflow.log_param("max_features", MAX_FEATURES)
+        # Log Best Params to MLflow
+        mlflow.log_params(search.best_params_)
         
         # Log Metrics
         mlflow.log_metric("accuracy", acc)
         mlflow.log_metric("f1_score", f1)
         
-        # Log Model (This saves the pickle file for us automatically)
-        mlflow.sklearn.log_model(pipeline, "model")
+        # Log the BEST model (not just the last one)
+        mlflow.sklearn.log_model(best_model, "model")
         
-        # Also save locally for API usage later
-        joblib.dump(pipeline, MODEL_PATH)
-        print(f"Model saved locally to {MODEL_PATH}")
+        # Save locally
+        joblib.dump(best_model, MODEL_PATH)
+        print(f"Best model saved locally to {MODEL_PATH}")
 
 if __name__ == "__main__":
     train()
