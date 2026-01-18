@@ -1,65 +1,50 @@
 # Sentiment Production Pipeline
 
-## Setup Guide
+[![Documentation Status](https://img.shields.io/badge/docs-live-brightgreen)](https://nouman64-cat.github.io/sentiment-production-pipeline/)
+[![Python](https://img.shields.io/badge/python-3.13-blue)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688)](https://fastapi.tiangolo.com/)
 
-Clone the repository:
+**Production-ready Sentiment Analysis System** featuring a "Champion/Challenger" architecture with Classical ML (Logistic Regression) and Deep Learning (DistilBERT) models.
 
-```bash
-git clone https://github.com/Nouman64-cat/sentiment-production-pipeline.git
-cd sentiment-production-pipeline
-```
+> **Full Documentation:** [View the Live Documentation Site](https://nouman64-cat.github.io/sentiment-production-pipeline/) for architecture diagrams, deep-dives, and EDA.
 
-### Option 1: Docker (Recommended for Evaluation)
+---
 
-Builds the environment, downloads data, trains both models, and serves the API in one container.
+## Model Comparison & Results (The Bottom Line)
 
-```bash
-# Build the image (Approx. 5 mins - includes Model Training)
-docker build -t sentiment-api .
+We compared a lightweight **Classical ML** model against a heavy **Deep Learning** Transformer.
 
-# Run the container
-docker run -p 8000:8000 sentiment-api
-```
+| Metric              | Model A: Classical ML | Model B: DistilBERT  |
+| :------------------ | :-------------------- | :------------------- |
+| **F1 Score**        | 0.62                  | **0.82**             |
+| **Inference Speed** | **~0.15 ms/sample**   | ~17.18 ms/sample     |
+| **Model Size**      | **0.2 MB**            | 255 MB               |
+| **Training Time**   | < 5 seconds           | ~10 minutes (on CPU) |
 
-### Option 2: Local Development
+### Deployment Decision
 
-If you wish to modify code or run locally.
+**Recommendation:** Deploy **Model A (Classical ML)** for the initial V1 release.
 
-#### Step 1: Install uv (Recommended) or use pip
+**Reasoning:**
 
-**using pipx (any platform):**
+1.  **Latency:** Model A is **100x faster** (0.15ms vs 17ms), essential for a high-throughput API.
+2.  **Cost:** At **0.2MB**, Model A is significantly cheaper to host (e.g., AWS Lambda) compared to the memory-heavy Transformer.
+3.  **Baseline:** While Model B is 20% more accurate, Model A provides a "good enough" baseline with near-zero operational overhead. Model B remains available as a premium/offline option.
 
-```bash
-pipx install uv
-```
+---
 
-**Or using pip with virtual environment:**
+## Architecture
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install uv
-```
+The project follows a strict modular design pattern to ensure reproducibility and separation of concerns:
 
-#### Step 2: Setup Environment
-
-| Step            | Option A: uv (Recommended) | Option B: pip (Standard)                                                      |
-| :-------------- | :------------------------- | :---------------------------------------------------------------------------- |
-| **1. Init**     | `uv sync`                  | `python -m venv .venv`                                                        |
-| **2. Activate** | _(Handled by `uv run`)_    | `source .venv/bin/activate` (Mac/Linux)<br>`.venv\Scripts\activate` (Windows) |
-| **3. Deps**     | **Done!**                  | `pip install -r requirements.txt`                                             |
-
-#### Manual Training (Only for Option 2)
-
-If running locally, you must execute the pipeline steps manually:
-
-```bash
-# Using uv (set PYTHONPATH so 'src' module is found)
-PYTHONPATH=. uv run python src/scripts/download_dataset.py
-PYTHONPATH=. uv run python src/models/train_ml.py
-PYTHONPATH=. uv run python src/models/train_dl.py
-PYTHONPATH=. uv run uvicorn src.api.main:app --reload
-
-# For Mlflow tracking
-uv run mlflow ui
+```text
+├── src/
+│   ├── api/            # FastAPI application & SQLite logging
+│   ├── models/         # Training logic (ML & DL)
+│   ├── preprocessing/  # Text cleaning pipeline
+│   └── scripts/        # Utilities
+├── notebooks/          # EDA and Model Comparison (Jupyter)
+├── tests/              # Unit tests for data pipeline
+├── Dockerfile          # Multi-stage build for production
+└── pyproject.toml      # Dependency management (uv)
 ```
