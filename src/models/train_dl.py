@@ -99,6 +99,9 @@ def train():
 
     # --- THE CUSTOM TRAINING LOOP ---
     best_accuracy = 0
+
+    patience = 3       # How many epochs to wait before stopping
+    counter = 0        # Counter for epochs without improvement
     
     with mlflow.start_run():
         # Log Params
@@ -170,11 +173,19 @@ def train():
             mlflow.log_metric("val_accuracy", val_acc, step=epoch)
             mlflow.log_metric("val_f1", val_f1, step=epoch)
 
-            # --- SAVE BEST MODEL ---
             if val_acc > best_accuracy:
                 best_accuracy = val_acc
+                counter = 0 
                 torch.save(model.state_dict(), MODEL_SAVE_PATH)
-                print("✅ Model improved and saved!")
+                print(f"Model improved! Saved to {MODEL_SAVE_PATH}")
+            else:
+                counter += 1
+                print(f"No improvement for {counter} epochs.")
+
+            # Check if we should stop
+            if counter >= patience:
+                print(f"Early stopping triggered after {epoch + 1} epochs.")
+                break
                 
         print(f"\nTRAINING COMPLETE. Best Val Acc: {best_accuracy}")
 
