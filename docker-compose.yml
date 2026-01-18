@@ -20,7 +20,7 @@ services:
     volumes:
       - mlruns_data:/mlruns
     command: >
-      sh -c "pip install mlflow && mlflow ui --host 0.0.0.0 --backend-store-uri /mlruns"
+      sh -c "echo 'Waiting for API to initialize...' && sleep 5 && pip install mlflow && mlflow ui --host 0.0.0.0 --backend-store-uri /mlruns"
     depends_on:
       - api
 
