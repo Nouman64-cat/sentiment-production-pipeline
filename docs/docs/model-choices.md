@@ -46,12 +46,16 @@ Logistic Regression with TF-IDF features has been a gold standard for text class
 
 We use GridSearchCV to optimize:
 
-```python
-param_grid = {
-    'tfidf__max_features': [3000, 5000],
-    'tfidf__ngram_range': [(1, 1), (1, 2)],
-    'clf__C': [0.1, 1.0, 10.0]
-}
+```yaml
+# Configured in src/config/ml_config.yaml
+tfidf:
+  max_features_options: [3000, 5000]
+  ngram_range_options:
+    - [1, 1]
+    - [1, 2]
+
+logistic_regression:
+  C_options: [0.1, 1.0, 10.0]
 ```
 
 - **max_features**: Vocabulary size limit
@@ -108,11 +112,13 @@ Pre-trained on massive text corpora, DistilBERT brings:
 
 ### Training Configuration
 
-```python
-EPOCHS = 3
-BATCH_SIZE = 8
-MAX_LEN = 128
-LEARNING_RATE = 2e-5
+```yaml
+# Configured in src/config/dl_config.yaml
+training:
+  epochs: 3
+  batch_size: 8
+  max_len: 128
+  learning_rate: 2e-5
 ```
 
 | Hyperparameter | Value | Rationale                              |

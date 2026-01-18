@@ -1,7 +1,7 @@
 import os
+import yaml
 import torch
 import mlflow
-import numpy as np
 import pandas as pd
 from torch.utils.data import Dataset, DataLoader
 from transformers import DistilBertTokenizer, DistilBertForSequenceClassification, get_linear_schedule_with_warmup
@@ -9,16 +9,14 @@ from torch.optim import AdamW
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score
 from src.preprocessing.clean import clean_text
+from src.config import DL_CONFIG_PATH
 
-# --- CONFIGURATION ---
-DATA_PATH = os.path.join("src", "data", "data.csv")
-MODEL_SAVE_PATH = os.path.join("models", "dl_model.pth")
-EPOCHS = 3          
-BATCH_SIZE = 8      
-MAX_LEN = 128       
-LEARNING_RATE = 2e-5
+# Load configuration from YAML
+with open(DL_CONFIG_PATH, "r") as f:
+    config = yaml.safe_load(f)
 
-# 1. Custom Dataset Class
+
+# Custom Dataset Class
 class SentimentDataset(Dataset):
     def __init__(self, texts, labels, tokenizer, max_len):
         self.texts = texts
@@ -50,24 +48,37 @@ class SentimentDataset(Dataset):
             'labels': torch.tensor(label, dtype=torch.long)
         }
 
+
 def train():
     # Setup Device
     device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
     print(f"🚀 Training on device: {device}")
 
     # Setup MLflow
-    mlflow.set_experiment("Sentiment_Analysis_DL")
+    mlflow.set_experiment(config["mlflow"]["experiment_name"])
+    
+    # Ensure models directory exists
+    if not os.path.exists("models"):
+        os.makedirs("models")
     
     # Load & Split Data
-    df = pd.read_csv(DATA_PATH)
+    df = pd.read_csv(config["paths"]["data"])
     df['text'] = df['text'].apply(clean_text)
     
     # Split: 80% Train, 10% Val, 10% Test
-    df_train, df_temp = train_test_split(df, test_size=0.2, random_state=42)
-    df_val, df_test = train_test_split(df_temp, test_size=0.5, random_state=42)
+    df_train, df_temp = train_test_split(
+        df, 
+        test_size=config["data"]["test_size"], 
+        random_state=config["data"]["random_state"]
+    )
+    df_val, df_test = train_test_split(
+        df_temp, 
+        test_size=config["data"]["val_test_split"], 
+        random_state=config["data"]["random_state"]
+    )
 
     # Tokenizer
-    tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
+    tokenizer = DistilBertTokenizer.from_pretrained(config["model"]["name"])
 
     # DataLoaders
     def create_data_loader(df, tokenizer, max_len, batch_size):
@@ -79,39 +90,48 @@ def train():
         )
         return DataLoader(ds, batch_size=batch_size, num_workers=0)
 
-    train_loader = create_data_loader(df_train, tokenizer, MAX_LEN, BATCH_SIZE)
-    val_loader = create_data_loader(df_val, tokenizer, MAX_LEN, BATCH_SIZE)
+    max_len = config["training"]["max_len"]
+    batch_size = config["training"]["batch_size"]
+    epochs = config["training"]["epochs"]
+    
+    train_loader = create_data_loader(df_train, tokenizer, max_len, batch_size)
+    val_loader = create_data_loader(df_val, tokenizer, max_len, batch_size)
 
     # Model Setup
-    model = DistilBertForSequenceClassification.from_pretrained('distilbert-base-uncased', num_labels=2)
+    model = DistilBertForSequenceClassification.from_pretrained(
+        config["model"]["name"], 
+        num_labels=config["model"]["num_labels"]
+    )
     model = model.to(device)
 
     # Optimizer & Scheduler
-    # FIXED: Removed 'correct_bias=False' which is not valid for torch.optim.AdamW
-    optimizer = AdamW(model.parameters(), lr=LEARNING_RATE) 
+    optimizer = AdamW(model.parameters(), lr=config["training"]["learning_rate"]) 
     
-    total_steps = len(train_loader) * EPOCHS
+    total_steps = len(train_loader) * epochs
     scheduler = get_linear_schedule_with_warmup(
         optimizer,
-        num_warmup_steps=0,
+        num_warmup_steps=config["optimizer"]["num_warmup_steps"],
         num_training_steps=total_steps
     )
 
-    # --- THE CUSTOM TRAINING LOOP ---
+    # Training Loop
     best_accuracy = 0
-
-    patience = 3       # How many epochs to wait before stopping
-    counter = 0        # Counter for epochs without improvement
+    counter = 0
+    patience = config["early_stopping"]["patience"]
+    max_grad_norm = config["regularization"]["max_grad_norm"]
+    model_save_path = config["paths"]["model"]
     
     with mlflow.start_run():
         # Log Params
-        mlflow.log_param("epochs", EPOCHS)
-        mlflow.log_param("batch_size", BATCH_SIZE)
-        mlflow.log_param("lr", LEARNING_RATE)
-        mlflow.log_param("model", "DistilBERT")
+        mlflow.log_param("epochs", epochs)
+        mlflow.log_param("batch_size", batch_size)
+        mlflow.log_param("lr", config["training"]["learning_rate"])
+        mlflow.log_param("max_len", max_len)
+        mlflow.log_param("model", config["model"]["name"])
+        mlflow.log_param("patience", patience)
 
-        for epoch in range(EPOCHS):
-            print(f"\nEpoch {epoch + 1}/{EPOCHS}")
+        for epoch in range(epochs):
+            print(f"\nEpoch {epoch + 1}/{epochs}")
             print("-" * 10)
 
             # --- TRAIN STEP ---
@@ -123,7 +143,7 @@ def train():
                 attention_mask = batch["attention_mask"].to(device)
                 labels = batch["labels"].to(device)
 
-                model.zero_grad() # Clear gradients
+                model.zero_grad()
 
                 outputs = model(
                     input_ids=input_ids,
@@ -134,8 +154,8 @@ def train():
                 loss = outputs.loss
                 total_loss += loss.item()
 
-                loss.backward() # Backpropagation
-                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0) 
+                loss.backward()
+                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=max_grad_norm) 
                 optimizer.step()
                 scheduler.step()
             
@@ -158,7 +178,6 @@ def train():
                         attention_mask=attention_mask
                     )
                     
-                    # Convert logits to predictions
                     _, preds = torch.max(outputs.logits, dim=1)
                     
                     val_preds.extend(preds.cpu().tolist())
@@ -168,7 +187,7 @@ def train():
             val_f1 = f1_score(val_labels, val_preds)
             print(f"Val Accuracy: {val_acc} | Val F1: {val_f1}")
 
-            # Log Metrics to MLflow
+            # Log Metrics
             mlflow.log_metric("train_loss", avg_train_loss, step=epoch)
             mlflow.log_metric("val_accuracy", val_acc, step=epoch)
             mlflow.log_metric("val_f1", val_f1, step=epoch)
@@ -176,18 +195,19 @@ def train():
             if val_acc > best_accuracy:
                 best_accuracy = val_acc
                 counter = 0 
-                torch.save(model.state_dict(), MODEL_SAVE_PATH)
-                print(f"Model improved! Saved to {MODEL_SAVE_PATH}")
+                torch.save(model.state_dict(), model_save_path)
+                print(f"Model improved! Saved to {model_save_path}")
             else:
                 counter += 1
                 print(f"No improvement for {counter} epochs.")
 
-            # Check if we should stop
+            # Early stopping
             if counter >= patience:
                 print(f"Early stopping triggered after {epoch + 1} epochs.")
                 break
                 
         print(f"\nTRAINING COMPLETE. Best Val Acc: {best_accuracy}")
+
 
 if __name__ == "__main__":
     train()

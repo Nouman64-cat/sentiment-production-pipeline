@@ -35,7 +35,9 @@ sentiment-production-pipeline/
 │   │   └── database.py       # SQLite logging utilities
 │   │
 │   ├── config/                # Configuration management
-│   │   └── __init__.py
+│   │   ├── __init__.py
+│   │   ├── ml_config.yaml    # ML hyperparameters (editable)
+│   │   └── dl_config.yaml    # DL hyperparameters (editable)
 │   │
 │   └── scripts/               # Utility scripts
 │       └── download_dataset.py
@@ -135,11 +137,12 @@ FastAPI application with:
 
 ## Configuration Management
 
-| File               | Purpose                                 |
-| ------------------ | --------------------------------------- |
-| `.env`             | Environment variables (API keys, paths) |
-| `pyproject.toml`   | Project metadata and tool configuration |
-| `requirements.txt` | Pinned Python dependencies              |
+| File                | Purpose                                             |
+| ------------------- | --------------------------------------------------- |
+| `src/config/*.yaml` | **Model Hyperparameters** (editable configurations) |
+| `.env`              | Environment variables (API keys, paths)             |
+| `pyproject.toml`    | Project metadata and tool configuration             |
+| `requirements.txt`  | Pinned Python dependencies                          |
 
 ## Artifact Storage
 

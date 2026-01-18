@@ -1,0 +1,43 @@
+# =============================================================================
+# Deep Learning Model Configuration (DistilBERT)
+# =============================================================================
+
+# Paths
+paths:
+  data: "src/data/data.csv"
+  model: "models/dl_model.pth"
+
+# Model Architecture
+model:
+  name: "distilbert-base-uncased"
+  num_labels: 2 # Binary classification
+
+# Training Hyperparameters
+training:
+  epochs: 3
+  batch_size: 8
+  learning_rate: 2e-5
+  max_len: 128 # Maximum sequence length
+
+# Data Splitting
+data:
+  test_size: 0.2
+  val_test_split: 0.5 # Split remaining into 50% val, 50% test
+  random_state: 42
+
+# Optimizer Settings
+optimizer:
+  weight_decay: 0.0
+  num_warmup_steps: 0
+
+# Regularization
+regularization:
+  max_grad_norm: 1.0 # Gradient clipping
+
+# Early Stopping
+early_stopping:
+  patience: 3
+
+# MLflow Settings
+mlflow:
+  experiment_name: "Sentiment_Analysis_DL"

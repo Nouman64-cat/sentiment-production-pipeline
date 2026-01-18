@@ -1,0 +1,34 @@
+# =============================================================================
+# Classical ML Model Configuration (Logistic Regression + TF-IDF)
+# =============================================================================
+
+# Paths
+paths:
+  data: "src/data/data.csv"
+  model: "models/ml_model.joblib"
+
+# Data Splitting
+data:
+  test_size: 0.2
+  random_state: 42
+
+# TF-IDF Vectorizer Options
+tfidf:
+  max_features_options: [3000, 5000]
+  ngram_range_options:
+    - [1, 1] # Unigrams only
+    - [1, 2] # Unigrams + Bigrams
+
+# Logistic Regression Options
+logistic_regression:
+  C_options: [0.1, 1.0, 10.0] # Regularization strength
+
+# GridSearchCV Settings
+grid_search:
+  cv_folds: 3
+  scoring: "accuracy"
+  n_jobs: -1 # Use all CPU cores
+
+# MLflow Settings
+mlflow:
+  experiment_name: "Sentiment_Analysis_ML"
